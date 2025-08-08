@@ -1,6 +1,8 @@
 services:
   web:
-    image: vinsheng1997/event-web:latest
+    build:
+      context: .
+      dockerfile: ./backend/docker/Dockerfile.nginx
     restart: unless-stopped
     volumes:
       - event-storage:/var/www/storage:ro
@@ -13,8 +15,12 @@ services:
         condition: service_healthy
 
   backend:
-    image: vinsheng1997/event-backend:latest
+    build:
+      context: .
+      dockerfile: ./backend/docker/Dockerfile.php
+      target: production
     restart: unless-stopped
+    image: event-backend:latest
     volumes:
       - event-storage:/var/www/storage
     env_file:
@@ -31,7 +37,7 @@ services:
         condition: service_healthy
 
   websocket:
-    image: vinsheng1997/event-backend:latest
+    image: event-backend:latest
     entrypoint: []
     command: php artisan reverb:start
     restart: unless-stopped
@@ -48,7 +54,7 @@ services:
         condition: service_healthy
 
   queue:
-    image: vinsheng1997/event-backend:latest
+    image: event-backend:latest
     entrypoint: []
     command: php artisan queue:work --sleep=3 --tries=3 --timeout=90
     restart: unless-stopped
@@ -63,7 +69,9 @@ services:
         condition: service_healthy
 
   frontend:
-    image: vinsheng1997/event-frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     restart: unless-stopped
     env_file:
       - ./frontend/.env

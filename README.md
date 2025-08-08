@@ -20,9 +20,14 @@
 * **Docker** & **Docker Compose** (optional, but recommended)
 * **MySQL** (if running outside Docker)
 
+## Note
+I push the .env file for easier setup
+
 ---
 
 ## Backend (Laravel) Setup
+
+
 
 1. **Navigate to the backend directory**
 
@@ -117,7 +122,9 @@ Your frontend will be available at `http://localhost:3000`.
 
 ## Docker Usage
 
-> All commands assume you’re in the repository root.
+> Use docker-compose.yml to fetch from docker hub
+> Use docker-compose-dev.yml if you wan to build locally
+
 
 1. **Build & start**
 
