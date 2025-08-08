@@ -1,0 +1,106 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./backend/docker/Dockerfile.nginx
+    restart: unless-stopped
+    volumes:
+      - event-storage:/var/www/storage:ro
+    networks:
+      - event-network
+    ports:
+      - "5080:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/docker/Dockerfile.php
+      target: production
+    restart: unless-stopped
+    image: event-backend:latest
+    volumes:
+      - event-storage:/var/www/storage
+    env_file:
+      - ./backend/.env
+    networks:
+      - event-network
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm-healthcheck || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    depends_on:
+      database:
+        condition: service_healthy
+
+  websocket:
+    image: event-backend:latest
+    entrypoint: []
+    command: php artisan reverb:start
+    restart: unless-stopped
+    ports:
+      - "5088:8080"
+    volumes:
+      - event-storage:/var/www/storage
+    env_file:
+      - ./backend/.env
+    networks:
+      - event-network
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  queue:
+    image: event-backend:latest
+    entrypoint: []
+    command: php artisan queue:work --sleep=3 --tries=3 --timeout=90
+    restart: unless-stopped
+    volumes:
+      - event-storage:/var/www/storage
+    env_file:
+      - ./backend/.env
+    networks:
+      - event-network
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "5001:3000"
+    # depends_on:
+    #   - backend
+
+  database:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: event-db
+      MYSQL_PASSWORD: mypassword
+    ports:
+      - "5506:3306"
+    volumes:
+      - event-database:/var/lib/mysql
+    networks:
+      - event-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+volumes:
+  event-database:
+  event-storage:
+
+networks:
+  event-network:
