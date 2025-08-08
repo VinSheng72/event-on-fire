@@ -5,6 +5,10 @@ on:
   #   branches:
   #     - main
   workflow_dispatch:
+  workflow_run:
+    workflows: ["laravel-test"]
+    types:
+      - completed
 
 env:
   IMAGE_BACKEND: ${{ secrets.DOCKERHUB_USERNAME }}/event-backend
