@@ -5,7 +5,7 @@
 1. [Prerequisites](#prerequisites)
 2. [Backend (Laravel) Setup](#backend-laravel-setup)
 3. [Frontend (Next.js) Setup](#frontend-nextjs-setup)
-4. [Integrating the Scrumble API](#integrating-the-scrumble-api)
+4. [Open API Url](#open-api-url)
 5. [Admin Login & Home Page](#admin-login--home-page)
 6. [Docker Usage](#docker-usage)
 7. [Project Structure](#project-structure)
@@ -85,11 +85,6 @@ Your frontend will be available at `http://localhost:3000`.
     Docker
     http://localhost:5080/docs/api
     
-
-1. **Obtain your API key** from the [Scrumble portal](https://scrumble.example.com).
-
-2. **Add to `.env`** (backend) and `.env.local` (frontend):
-
 
 ## Admin/User Login & Home Page
 
